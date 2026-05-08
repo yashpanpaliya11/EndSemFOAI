@@ -1,0 +1,46 @@
+import axios from 'axios';
+
+// Interfaces for response shapes
+export interface IssPosition {
+  latitude: string;
+  longitude: string;
+}
+
+export interface IssResponse {
+  message: string;
+  timestamp: number;
+  iss_position: IssPosition;
+}
+
+export interface AstrosResponse {
+  message: string;
+  number: number;
+  people: { name: string; craft: string }[];
+}
+
+const getBaseUrl = () => {
+    return window.location.origin;
+};
+
+export const fetchIssLocation = async (): Promise<IssResponse> => {
+  const response = await axios.get(`${getBaseUrl()}/api/iss-now`);
+  return response.data;
+};
+
+export const fetchAstronauts = async (): Promise<AstrosResponse> => {
+  const response = await axios.get(`${getBaseUrl()}/api/astros`);
+  return response.data;
+};
+
+// Haversine formula to calculate distance between two coordinates in km
+export const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+  const R = 6371; // Radius of the Earth in km
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2); 
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  return R * c;
+};
